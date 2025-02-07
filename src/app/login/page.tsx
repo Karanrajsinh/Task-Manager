@@ -12,7 +12,7 @@ export default function Home() {
             <div className='h-screen w-screen flex justify-center items-center'>
                 <ModeToggle />
                 <SignIn
-                    fallbackRedirectUrl={'/dashboard'}
+                    forceRedirectUrl={'/dashboard'}
                     appearance={
                         {
                             elements:
