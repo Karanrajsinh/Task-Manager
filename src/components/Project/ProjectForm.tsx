@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Project } from '@/db/validation';
 import { useProjectMutations } from '@/hooks/useTanstackQuery';
+import { useUser } from '@clerk/nextjs';
 
 type PropTypes =
     {
@@ -16,14 +17,16 @@ type PropTypes =
 
 export default function ProjectForm({ project, setProject, open, setOpen, actionType }: PropTypes) {
 
-    const { createProject, updateProject } = useProjectMutations("f4884b9e-a943-4c08-b821-1f89e22ebbee");
+    const { user } = useUser();
+    const userId = user?.id || '';
+    const { createProject, updateProject } = useProjectMutations(userId);
     const addProject = async () => {
 
         try {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { id, ...projectWithoutId } = project
-            if (actionType === 'add') await createProject.mutateAsync(projectWithoutId);
-            else await updateProject.mutateAsync(project)
+            if (actionType === 'add') await createProject.mutateAsync({ ...projectWithoutId, userId: userId });
+            else await updateProject.mutateAsync({ ...project, userId: userId })
             setOpen(false)
         } catch (err) {
             console.log(err);

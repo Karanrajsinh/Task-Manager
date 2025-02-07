@@ -137,7 +137,7 @@ export const useProject = (userId: string, projectId: number) => {
                 where: and(eq(projects.userId, userId), eq(projects.id, projectId)),
             });
 
-            return project;
+            return project || null;
         },
         staleTime: 1000 * 60 * 5,
         enabled: !!userId,

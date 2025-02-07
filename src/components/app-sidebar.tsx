@@ -17,9 +17,9 @@ import {
   LayoutDashboard,
   Calendar as CalendarIcon,
   Folder,
-  ClipboardList
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { LiaCalendar } from "react-icons/lia"
 
 interface NavItem {
   title: string;
@@ -55,10 +55,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar {...props}>
       <SidebarHeader>
         <SidebarMenu>
-          <header className="flex items-center justify-center gap-2 p-4 mx-auto">
-            <ClipboardList className="w-6 h-6" />
+          <Link href='/' className="flex items-center justify-center gap-2 p-4 mx-auto">
+            <LiaCalendar className="w-6 h-6" />
             <p className="text-xl font-semibold">Task Manager</p>
-          </header>
+          </Link >
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>

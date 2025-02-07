@@ -2,7 +2,7 @@ import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
 import { db } from '@/db'; 
-import { users } from '@/db/schema'; 
+import { projects, tasks, users } from '@/db/schema'; 
 import { eq } from 'drizzle-orm';
 
 export async function POST(req: Request) {
@@ -90,6 +90,24 @@ export async function POST(req: Request) {
     } else {
       console.error('Error: User ID is undefined');
     }
+  }else if (evt.type === 'user.deleted') {
+    const { id } = evt.data;
+
+    if (!id) {
+      console.error('Error: User ID is undefined for deletion');
+      return new Response('Error: Missing user ID', { status: 400 });
+    }
+
+    // Delete tasks associated with the user's projects
+    await db.delete(tasks).where(eq(tasks.userId, id));
+
+    // Delete projects associated with the user
+    await db.delete(projects).where(eq(projects.userId, id));
+
+    // Finally, delete the user
+    await db.delete(users).where(eq(users.id, id));
+
+    console.log(`User ${id} and all associated data deleted from DB`);
   }
   
 

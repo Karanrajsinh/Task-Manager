@@ -6,6 +6,7 @@ import { Project } from '@/db/validation';
 import { useProjectMutations } from '@/hooks/useTanstackQuery';
 import Link from 'next/link';
 import { ContextMenuItem } from '@radix-ui/react-context-menu';
+import { useUser } from '@clerk/nextjs';
 
 
 type PropTypes =
@@ -17,7 +18,10 @@ type PropTypes =
     }
 
 export default function ProjectCard({ project, setProject, setActionType, setOpen }: PropTypes) {
-    const { deleteProject } = useProjectMutations("f4884b9e-a943-4c08-b821-1f89e22ebbee");
+
+    const { user } = useUser();
+    const userId = user?.id || '';
+    const { deleteProject } = useProjectMutations(userId);
 
     const handleDelete = async () => {
         await deleteProject.mutateAsync(project.id);

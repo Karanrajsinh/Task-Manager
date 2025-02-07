@@ -9,6 +9,7 @@ import { FaFlag } from "react-icons/fa";
 import { useTaskMutations } from "@/hooks/useTanstackQuery";
 import { useToast } from "@/hooks/use-toast";
 import { getErrorMessage } from "@/utils/errorMessage";
+import { useUser } from "@clerk/nextjs";
 
 type PropTypes = {
     task: Task,
@@ -19,7 +20,9 @@ type PropTypes = {
 };
 
 export default function TaskCard({ task, setTaskData, setOpen, setActionType, onTaskUpdate }: PropTypes) {
-    const { deleteTask } = useTaskMutations("f4884b9e-a943-4c08-b821-1f89e22ebbee");
+    const { user } = useUser();
+    const userId = user?.id || '';
+    const { deleteTask } = useTaskMutations(userId);
     const { toast } = useToast()
     const handleDelete = async () => {
         try {

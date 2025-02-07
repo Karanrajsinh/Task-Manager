@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DefaultTaskObj, Task } from '@/db/validation';
-import TaskCard from './Task/Task';
+import TaskCard from './Task/TaskCard';
 import TaskForm from './Task/TaskForm';
 import { useMonthTasks } from '@/hooks/useTanstackQuery';
 import { useQueryClient } from '@tanstack/react-query';
 import TaskCalendarSkeleton from './skeleton/TaskCalendarSkeleton';
+import { useUser } from '@clerk/nextjs';
 
 interface CalendarDay {
     date: Date;
@@ -19,16 +20,18 @@ interface CalendarDay {
 
 const TaskCalendarWidget: React.FC = () => {
 
+    const { user } = useUser();
+    const userId = user?.id || '';
     const [date, setDate] = useState(new Date());
     const [actionType, setActionType] = useState<'add' | 'edit'>('edit');
     const [open, setOpen] = useState(false)
     const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false);
     const [currentDayTasks, setCurrentDayTasks] = useState<Task[]>([]);
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-    const [taskData, setTaskData] = useState<Task>(DefaultTaskObj);
+    const [taskData, setTaskData] = useState<Task>({ ...DefaultTaskObj, userId: userId });
 
     const { data: monthTasks = [], isLoading } = useMonthTasks(
-        "f4884b9e-a943-4c08-b821-1f89e22ebbee",
+        userId,
         date
     );
 
@@ -56,7 +59,7 @@ const TaskCalendarWidget: React.FC = () => {
                     }, [] as Task[]);
 
                 case "delete":
-                    queryClient.invalidateQueries({ queryKey: ['tasks', "66427732-fcff-4614-811b-dd89d9d2176a", 'month', date.getFullYear(), date.getMonth()] })
+                    queryClient.invalidateQueries({ queryKey: ['tasks', userId, 'month', date.getFullYear(), date.getMonth()] })
                     return prevTasks.filter(task => task.id !== updatedTask.id);
 
                 default:

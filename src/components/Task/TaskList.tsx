@@ -4,7 +4,7 @@ import { BsListTask, BsSearch } from 'react-icons/bs';
 import { BiCalendar } from 'react-icons/bi';
 import { AiOutlineProject, AiOutlineInbox } from 'react-icons/ai';
 import { FiAlertCircle } from 'react-icons/fi';
-import TaskCard from "./Task";
+import TaskCard from "./TaskCard";
 import TaskForm from "./TaskForm";
 import { DefaultTaskObj, Task } from "@/db/validation";
 import TaskCardSkeleton from "../skeleton/TaskCardSkeleton";
@@ -13,30 +13,26 @@ import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import EmptyState from "../ui/EmptyState";
 import TaskDashboardSkeleton from "../skeleton/TaskDashBoardSkeleton";
+import { useUser } from "@clerk/nextjs";
 
 const TaskDashboard = () => {
+    const { user } = useUser();
+    const userId = user?.id || '';
     const [actionType, setActionType] = useState<'add' | 'edit'>('edit');
     const [open, setOpen] = useState(false);
-    const [taskData, setTaskData] = useState<Task>(DefaultTaskObj);
+    const [taskData, setTaskData] = useState<Task>({ ...DefaultTaskObj, userId: userId });
     const [searchTerm, setSearchTerm] = useState("");
     const [priority, setPriority] = useState("");
 
-    const { data: tasks, isLoading } = useTasks(
-        "f4884b9e-a943-4c08-b821-1f89e22ebbee",
-        undefined,
-    );
 
-    const { data: projects } = useProjects(
-        "f4884b9e-a943-4c08-b821-1f89e22ebbee",
-    );
+    const { data: tasks, isLoading } = useTasks(userId, undefined);
 
-    const { data: filteredTasks, isLoading: isSearchLoading } = useTaskSearch(
-        "f4884b9e-a943-4c08-b821-1f89e22ebbee",
-        {
-            searchTerm,
-            priority: priority as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' | undefined
-        },
-    );
+    const { data: projects } = useProjects(userId);
+
+    const { data: filteredTasks, isLoading: isSearchLoading } = useTaskSearch(userId, {
+        searchTerm,
+        priority: priority as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT' | undefined
+    });
 
     const todayTasks = tasks?.filter(task =>
         new Date(task.dueDate).toDateString() === new Date().toDateString()
