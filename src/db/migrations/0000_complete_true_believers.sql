@@ -1,25 +1,29 @@
+CREATE TYPE "public"."priority" AS ENUM('LOW', 'MEDIUM', 'HIGH', 'URGENT');--> statement-breakpoint
 CREATE TABLE "projects" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
-	"description" text,
-	"user_id" uuid NOT NULL,
+	"description" text DEFAULT '' NOT NULL,
+	"user_id" varchar(255) NOT NULL,
 	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"updated_at" timestamp DEFAULT now(),
+	CONSTRAINT "projects_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
 CREATE TABLE "tasks" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"title" text NOT NULL,
-	"description" text,
-	"due_date" timestamp,
+	"description" text DEFAULT '' NOT NULL,
+	"due_date" timestamp NOT NULL,
+	"priority" "priority" DEFAULT 'LOW' NOT NULL,
 	"project_id" integer,
-	"user_id" uuid NOT NULL,
+	"user_id" varchar(255) NOT NULL,
 	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"updated_at" timestamp DEFAULT now(),
+	CONSTRAINT "tasks_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"id" varchar(255) PRIMARY KEY NOT NULL,
 	"email" varchar(255) NOT NULL,
 	"name" text NOT NULL,
 	"password" text NOT NULL,

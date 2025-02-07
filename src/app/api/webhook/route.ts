@@ -48,40 +48,50 @@ export async function POST(req: Request) {
     });
   }
 
-  // Handle the event based on type (user.created, user.updated, user.deleted)
   if (evt.type === 'user.created') {
-    // Create new user in the database
-    const { id, email, name } = evt.data as unknown as { id: string; email: string; name: string };
+    // Extract user details correctly
+    const { id, first_name, last_name, email_addresses } = evt.data 
+  
+    // Get primary email (first email in the array)
+    const email = email_addresses.length > 0 ? email_addresses[0].email_address : null;
+  
+    if (!email) {
+      console.error('Error: User does not have an email address.');
+      return new Response('Error: Missing email address', { status: 400 });
+    }
+  
+    // Insert user into DB
     await db.insert(users).values({
-      id, 
-      email, 
-      name,
-      password: '', // Set default or empty password as it's not coming from Clerk
+      id,
+      email,
+      name: `${first_name} ${last_name}`,
+      password: '', // Default empty password
     });
+  
     console.log('User created in DB:', evt.data);
   } else if (evt.type === 'user.updated') {
-    // Update the user data in the database
-    const { id, email, name } = evt.data as unknown as { id: string; email: string; name: string };
+    // Extract user details correctly
+    const { id, first_name, last_name, email_addresses } = evt.data
+  
+    // Get primary email (first email in the array)
+    const email = email_addresses.length > 0 ? email_addresses[0].email_address : null;
+  
+    if (!email) {
+      console.error('Error: User does not have an email address.');
+      return new Response('Error: Missing email address', { status: 400 });
+    }
+  
     if (id) {
-        await db.update(users)
-        .set({ email, name })
-        .where(eq(users.id,id));
-      } else {
-        console.error('Error: User ID is undefined');
-      }
-      console.log('User updated from DB:', id);
-   
-    console.log('User updated in DB:', evt.data);
-  } else if (evt.type === 'user.deleted') {
-    // Delete the user from the database
-    const { id } = evt.data;
-    if (id) {
-      await db.delete(users).where(eq(users.id, id));
+      await db.update(users)
+        .set({ email, name: `${first_name} ${last_name}` })
+        .where(eq(users.id, id));
+  
+      console.log('User updated in DB:', evt.data);
     } else {
       console.error('Error: User ID is undefined');
     }
-    console.log('User deleted from DB:', id);
   }
+  
 
   return new Response('Webhook received', { status: 200 });
 }
