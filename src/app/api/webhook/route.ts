@@ -51,7 +51,7 @@ export async function POST(req: Request) {
   // Handle the event based on type (user.created, user.updated, user.deleted)
   if (evt.type === 'user.created') {
     // Create new user in the database
-    const { id, email, name } = evt.data;
+    const { id, email, name } = evt.data as unknown as { id: string; email: string; name: string };
     await db.insert(users).values({
       id, 
       email, 
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     console.log('User created in DB:', evt.data);
   } else if (evt.type === 'user.updated') {
     // Update the user data in the database
-    const { id, email, name } = evt.data;
+    const { id, email, name } = evt.data as unknown as { id: string; email: string; name: string };
     if (id) {
         await db.update(users)
         .set({ email, name })
