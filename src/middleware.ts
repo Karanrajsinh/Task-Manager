@@ -7,9 +7,9 @@ export default clerkMiddleware(async (auth, req) => {
   // Define protected routes
   const protectedRoutes = ["/dashboard"];
 
-  // Exclude /api/webhook from authentication checks
+  // Allow public access to the webhook route
   if (pathname.startsWith("/api/webhook")) {
-    return NextResponse.next(); // Allow webhook route to run without authentication
+    return NextResponse.next();
   }
 
   // Check if the user is authenticated
@@ -24,7 +24,7 @@ export default clerkMiddleware(async (auth, req) => {
 export const config = {
   matcher: [
     "/dashboard/:path*",
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    "/(api|trpc)(?!/webhook)(.*)", // Exclude /api/webhook
+    "/((?!_next|_static|.*\\..*).*)", // Matches all routes except Next.js internals and static assets
+    "/api/:path*", // Matches all API routes (but we explicitly handle /api/webhook inside the function)
   ],
 };
